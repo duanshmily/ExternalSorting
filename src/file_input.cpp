@@ -5,6 +5,8 @@
 
 #include "shared_data.h"
 
+namespace fileinput {
+
 fileinput::FileInput::FileInput() {
     this->fin = nullptr;
     this->buffer_idx_ = 0;
@@ -25,6 +27,7 @@ fileinput::FileInput::~FileInput() {
 
 int fileinput::FileInput::inputData(unsigned long long &in) {
     if (this->buffer_idx_ == this->buffer_size_) {
+        // 尝试从当前文件中继续读取
         updateData();
         if (this->buffer_size_ == 0) {
             fclose(fin);
@@ -54,3 +57,5 @@ void fileinput::FileInput::updateData(const int &folder_idx, const int &file_idx
     
     updateData();
 }
+
+} // fileinput

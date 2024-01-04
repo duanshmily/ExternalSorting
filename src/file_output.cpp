@@ -6,6 +6,9 @@
 #include "auxiliary_function.h"
 #include "shared_data.h"
 
+namespace fileoutput {
+
+// 表示当前文件已经输出的缓冲区个数
 static int input_buffer_number = 0;
 
 fileoutput::FileOutput::FileOutput() {
@@ -52,6 +55,7 @@ void fileoutput::FileOutput::updateData(const int &buffer_cnt, const int &folder
     if (!this->buffer_) this->buffer_ = new unsigned long long[shareddata::MAX_BUFFER_SIZE];
     if (shareddata::IS_THE_FIRST_OPEN) this->t_buffer_ = new unsigned long long[shareddata::MAX_BUFFER_SIZE];
     
+    // 判断并创建文件夹
     if (this->cur_folder_flag_ == 0) {
         std::filesystem::remove_all("0");
         std::filesystem::create_directory("0");
@@ -139,6 +143,7 @@ void fileoutput::FileOutput::OutputData(const char *bottom, const int &n1, const
     exponent_part_ = std::min(exponent_part_, 1000);
     exponent_part_ = std::max(exponent_part_, -998);
 
+    // 对当前浮点数进行整合
     auto &sort_flag_ = this->buffer_[this->buffer_size_ ++ ];
     sort_flag_ = (sign_ != -1 ? 2 : 1) * 1000000000000000ll + 
                 (exponent_part_ + 1000) * 100000000000ll + bottom_part_;
@@ -149,3 +154,5 @@ void fileoutput::FileOutput::OutputData(const char *bottom, const int &n1, const
         this->BufferOutputToFile();
     }
 }
+
+} // fileoutput

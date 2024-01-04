@@ -5,6 +5,8 @@
 #include "file_input.h"
 #include "shared_data.h"
 
+namespace auxiliaryfunction {
+
 auxiliaryfunction::FileOutput::FileOutput() {
     this->buffer_size_ = 0;
     this->buffer_ = new char[shareddata::MAX_BUFFER_SIZE];
@@ -122,6 +124,7 @@ void auxiliaryfunction::getResultFile(const int &cur_folder_flag) {
     long long bottom_fraction = 0;
 
     while (fin.inputData(temp1)) {
+        // 得到该浮点数原整合数字
         temp2 = (long long) temp1 - 2200099999999999ll;
         if (temp2 < 0) temp2 = -temp2;
 
@@ -150,6 +153,7 @@ void auxiliaryfunction::getResultFile(const int &cur_folder_flag) {
             
             if (!cur_part_flag && cnt == 4) cnt = 0, cur_part_flag = 1;
         }
+        // 得到映射之前的指数值
         exponent -= 1001;
         
         if (t_double_buffer[1] == '0' && bottom_fraction == 0) exponent = 0;
@@ -175,3 +179,5 @@ void auxiliaryfunction::getResultFile(const int &cur_folder_flag) {
     double_buffer = nullptr;
     t_double_buffer = nullptr;
 }
+
+} // auxiliaryfunction

@@ -8,6 +8,8 @@
 #include "shared_data.h"
 #include "auxiliary_function.h"
 
+namespace fileoperator {
+
 void fileoperator::fileInitialize() {
     std::ifstream fin(shareddata::INPUT_POSITION, std::ios::in);
     if (!fin.is_open()) {
@@ -108,3 +110,5 @@ int fileoperator::fileMerge() {
     delete[] fin;
     return cur_folder_flag;
 }
+
+} // fileoperator
