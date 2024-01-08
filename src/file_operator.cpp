@@ -68,40 +68,35 @@ int fileoperator::fileMerge() {
     fileoutput::FileOutput fout;
     fileinput::FileInput *fin = new fileinput::FileInput[shareddata::MAX_PUT_TOGETHER_WAY];
 
-    unsigned long long temp;
+    unsigned long long temp = 0;
     std::priority_queue<std::pair<unsigned long long, int>, std::vector<std::pair<unsigned long long, int>>, std::greater<>> q;
 
     // 如果没有归并结束，就一直归并
     while (cur_file_count > 1) {
         // 新一轮的归并需要更新输出缓冲区的方向和相关信息
         fout.updateData(cur_merge_cnt, cur_folder_flag ^ 1);
-        
-        // 初始化归并操作，打开相应的归并文件
-        cnt = 0;
-        while (file_idx < cur_file_count && cnt < shareddata::MAX_PUT_TOGETHER_WAY) {
-            fin[cnt].updateData(cur_folder_flag, file_idx ++ );
-            fin[cnt].inputData(temp);
-            q.emplace(temp, cnt ++ );
-        }
 
-        // 当前堆中还存在没有归并完的数据
-        while (!q.empty()) {
-            fout.OutputData(q.top().first);
-            int idx = q.top().second;
-            q.pop();
-            if (!fin[idx].inputData(temp)) {
-                // 如果还有文件可以打开
-                if (file_idx < cur_file_count) {
-                    fin[idx].updateData(cur_folder_flag, file_idx ++ );
-                    fin[idx].inputData(temp);
-                } else continue; // 没有文件可以打开了
+        while (file_idx < cur_file_count) {
+            cnt = 0;
+            // 最多打开shareddata::MAX_PUT_TOGETHER_WAY的文件数量进行归并
+            while (file_idx < cur_file_count && cnt < shareddata::MAX_PUT_TOGETHER_WAY) {
+                fin[cnt].updateData(cur_folder_flag, file_idx ++ );
+                fin[cnt].inputData(temp);
+                q.emplace(temp, cnt ++ );
             }
-            q.emplace(temp, idx);
+            // k路归并
+            while (!q.empty()) {
+                fout.OutputData(q.top().first);
+                int idx = q.top().second;
+                q.pop();
+                if (!fin[idx].inputData(temp)) continue;
+                q.emplace(temp, idx);
+            }
+            // 清空缓冲区
+            fout.Flush();
         }
-
-        fout.Flush();
         
-        cur_folder_flag ^= 1, file_idx = 0, cnt = 0;
+        cur_folder_flag ^= 1, file_idx = 0;
         cur_file_count = shareddata::FILE_COUNT;
         cur_merge_cnt *= shareddata::MAX_PUT_TOGETHER_WAY;
     }

@@ -85,28 +85,8 @@ void auxiliaryfunction::sort(unsigned long long *a, unsigned long long *b, const
     }
 }
 
-void auxiliaryfunction::putDigitIntoChar(char *s, const int &st, const int &ed, long long &digit, const int &digit_length) {
-    int i = st + digit_length - 1;
-    while (digit) {
-        s[i -- ] = digit % 10 + '0';
-        digit /= 10;
-    }
-    i = st + digit_length;
-    while (i <= ed) s[i ++ ] = '0';
-}
-
-void auxiliaryfunction::putDigitIntoChar(char *s, const int &st, const int &ed, int &digit) {
-    int i = ed;
-    while (digit) {
-        s[i -- ] = digit % 10 + '0';
-        digit /= 10;
-    }
-    while (i >= st) s[i -- ] = '0';
-}
-
 void auxiliaryfunction::getResultFile(const int &cur_folder_flag) {
     char *double_buffer = new char[20];
-    char *t_double_buffer = new char[20];
 
     fileinput::FileInput fin;
     fin.updateData(cur_folder_flag, 0);
@@ -115,65 +95,51 @@ void auxiliaryfunction::getResultFile(const int &cur_folder_flag) {
     long long temp2 = 0;
     unsigned long long temp1 = 0;
     
-    int i = 0, cnt = 0, cur_part_flag = 0;
-    int bottom_fraction_length = 0;
-    
-    int exponent = 0;
-    long long bottom_fraction = 0;
+    int i = 0, exponent = 0;
+    long long power = 1000000000000000ll;
 
     while (fin.inputData(temp1)) {
         // 得到该浮点数原整合数字
-        temp2 = (long long) temp1 - 2200099999999999ll;
+        temp2 = (long long) temp1 - 3000000000000000ll;
         if (temp2 < 0) temp2 = -temp2;
 
-        i = 16;
-        while (temp2) {
-            double_buffer[-- i] = temp2 % 10 + '0';
-            temp2 /= 10;
+        double_buffer[0] = (temp2 / power) % 10 == 2 ? '+' : '-';
+        for (i = 1; i <= 4; ++ i) {
+            power /= 10;
+            exponent = exponent * 10 + (temp2 / power) % 10;
         }
-
-        t_double_buffer[1] = '0';
-        t_double_buffer[0] = double_buffer[0] != '1' ? '+' : '-';
-        for (i = 1; i < 16; ++ i) {
-            if (!cur_part_flag) {
-                exponent = exponent * 10 + double_buffer[i] - '0';
-                ++ cnt;
-            } else {
-                if (!cnt && double_buffer[i] - '0' != 0) {
-                    t_double_buffer[1] = double_buffer[i];
-                    ++ cnt;
-                } else if (cnt) {
-                    bottom_fraction = bottom_fraction * 10 + double_buffer[i] - '0';
-                    if (bottom_fraction) ++ bottom_fraction_length;
-                    ++ cnt;
-                }
-            }
-            
-            if (!cur_part_flag && cnt == 4) cnt = 0, cur_part_flag = 1;
-        }
-        // 得到映射之前的指数值
         exponent -= 1001;
-        
-        if (t_double_buffer[1] == '0' && bottom_fraction == 0) exponent = 0;
 
-        t_double_buffer[2] = '.';
-        putDigitIntoChar(t_double_buffer, 3, 12, bottom_fraction, bottom_fraction_length);
-        t_double_buffer[13] = 'E';
-        t_double_buffer[14] = exponent >= 0 ? '+' : '-';
-        if (exponent < 0) exponent = -exponent;
-        putDigitIntoChar(t_double_buffer, 15, 17, exponent);
-        t_double_buffer[18] = '\n';
-        t_double_buffer[19] = '\0';
+        for (i = 2; i <= 12; ++ i) {
+            power /= 10;
+            if (power) double_buffer[i] = (temp2 / power) % 10 + '0';
+            else double_buffer[i] = '0';
+        }
+        double_buffer[1] = double_buffer[2];
+        double_buffer[2] = '.';
 
-        fout.OutputData(t_double_buffer);
+        if (double_buffer[1] == double_buffer[3] && double_buffer[1] == '0') exponent = 0;
 
-        cnt = cur_part_flag = 0;
-        exponent = bottom_fraction = 0;
-        bottom_fraction_length = 0;
+        double_buffer[13] = 'E';
+        if (exponent < 0) double_buffer[14] = '-', exponent *= -1;
+        else double_buffer[14] = '+';
+
+        i = 17;
+        while (i >= 15) {
+            if (exponent) double_buffer[i -- ] = exponent % 10 + '0';
+            else double_buffer[i -- ] = '0';
+            exponent /= 10;
+        }
+
+        double_buffer[18] = '\n';
+        double_buffer[19] = '\0';
+
+        fout.OutputData(double_buffer);
+
+        exponent = 0;
+        power = 1000000000000000ll;
     }
     delete[] double_buffer;
-    delete[] t_double_buffer;
 
     double_buffer = nullptr;
-    t_double_buffer = nullptr;
 }

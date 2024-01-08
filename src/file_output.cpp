@@ -109,7 +109,7 @@ void fileoutput::FileOutput::OutputData(const char *bottom, const int &n1, const
 
     // 得到底数，找到小数点位置同时得到第一个有效位的位置
     temp_sign_1 = 0;
-    long long bottom_part_ = 0;
+    long long bottom_part_ = 0, bottom_power_ = 1;
     int i_no_zero = n1, i_point = n1, temp_sign_2 = 0;
     for (i = bottom[0] == '-' || bottom[0] == '+'; i < n1; ++ i) {
         if (bottom[i] == '.') i_point = i;
@@ -120,6 +120,8 @@ void fileoutput::FileOutput::OutputData(const char *bottom, const int &n1, const
         if (!temp_sign_2 && bottom[i] != '.') {
             // 添加到底数中
             bottom_part_ = bottom_part_ * 10ll + (bottom[i] - '0');
+            // 统计底数权值
+            if (bottom_part_) bottom_power_ *= 10ll;
             // 如果达到了有效位数，则判断四舍五入
             if (bottom_part_ > 99999999999ll) {
                 bottom_part_ = (bottom_part_ + 5) / 10;
@@ -127,6 +129,7 @@ void fileoutput::FileOutput::OutputData(const char *bottom, const int &n1, const
                 if (bottom_part_ > 99999999999ll) {
                     ++ exponent_part_;
                     bottom_part_ = 10000000000ll;
+                    bottom_power_ = 100000000000ll;
                 }
                 temp_sign_2 = 1;
             }
@@ -142,12 +145,14 @@ void fileoutput::FileOutput::OutputData(const char *bottom, const int &n1, const
     exponent_part_ = std::max(exponent_part_, -998);
 
     // 对当前浮点数进行整合
-    auto &sort_flag_ = this->buffer_[this->buffer_size_ ++ ];
+    long long sort_flag_ = 0;
     sort_flag_ = (sign_ != -1 ? 2 : 1) * 1000000000000000ll + 
-                (exponent_part_ + 1000) * 100000000000ll + bottom_part_;
+                (exponent_part_ + 1000) * 100000000000ll + 
+                bottom_part_ * (100000000000ll / bottom_power_);
     if (sign_ == -1) sort_flag_ *= -1;
-    sort_flag_ += 2200099999999999ll;
+    sort_flag_ += 3000000000000000ll;
 
+    this->buffer_[this->buffer_size_ ++ ] = sort_flag_;
     if (this->buffer_size_ >= shareddata::MAX_BUFFER_SIZE) {
         this->BufferOutputToFile();
     }
