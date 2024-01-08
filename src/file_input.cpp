@@ -5,8 +5,6 @@
 
 #include "shared_data.h"
 
-namespace fileinput {
-
 fileinput::FileInput::FileInput() {
     this->fin = nullptr;
     this->buffer_idx_ = 0;
@@ -57,5 +55,3 @@ void fileinput::FileInput::updateData(const int &folder_idx, const int &file_idx
     
     updateData();
 }
-
-} // fileinput

@@ -5,8 +5,6 @@
 #include "file_input.h"
 #include "shared_data.h"
 
-namespace auxiliaryfunction {
-
 auxiliaryfunction::FileOutput::FileOutput() {
     this->buffer_size_ = 0;
     this->buffer_ = new char[shareddata::MAX_BUFFER_SIZE];
@@ -179,5 +177,3 @@ void auxiliaryfunction::getResultFile(const int &cur_folder_flag) {
     double_buffer = nullptr;
     t_double_buffer = nullptr;
 }
-
-} // auxiliaryfunction

@@ -6,8 +6,6 @@
 #include "auxiliary_function.h"
 #include "shared_data.h"
 
-namespace fileoutput {
-
 // 表示当前文件已经输出的缓冲区个数
 static int input_buffer_number = 0;
 
@@ -154,5 +152,3 @@ void fileoutput::FileOutput::OutputData(const char *bottom, const int &n1, const
         this->BufferOutputToFile();
     }
 }
-
-} // fileoutput
